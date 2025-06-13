@@ -7,18 +7,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import io.kapaseker.ytor.page.home.biz.HomeViewModel
+import io.kapaseker.ytor.resource.inPainter
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.compose_multiplatform
 
 @Composable
-fun HomePage() {
+fun HomePage(
+    entry: NavBackStackEntry,
+    vm: HomeViewModel = viewModel { HomeViewModel() }
+) {
     var showContent by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -34,8 +38,8 @@ fun HomePage() {
                 Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(painterResource(Res.drawable.compose_multiplatform), null)
-                Text("Hello Compose")
+                Image(painter = Res.drawable.compose_multiplatform.inPainter(), contentDescription = null)
+                Text(text = "Hello Compose")
             }
         }
     }

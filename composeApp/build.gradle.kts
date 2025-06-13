@@ -23,11 +23,16 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            implementation(libs.kotlinx.io.core)
+
             implementation(libs.compose.navigation)
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
@@ -42,8 +47,12 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "io.kapaseker.ytor"
+            packageName = "Ytor"
             packageVersion = "1.0.0"
+
+            windows {
+                iconFile.set(project.file("ytor.icns"))
+            }
         }
     }
 }
