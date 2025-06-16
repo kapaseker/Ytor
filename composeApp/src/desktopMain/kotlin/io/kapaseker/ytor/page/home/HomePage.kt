@@ -12,8 +12,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
+import io.kapaseker.ytor.resource.PagePadding
 import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.widget.AppFilledIconButton
+import io.kapaseker.ytor.widget.Page
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.app_name
 import ytor.composeapp.generated.resources.setting
@@ -25,10 +27,9 @@ fun HomePage(
 
     val controller = LocalController.current
 
-    Box(modifier = Modifier.safeContentPadding().fillMaxSize()) {
-
+    Page {
         AppFilledIconButton(
-            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+            modifier = Modifier.align(Alignment.TopEnd),
             icon = Res.drawable.setting,
             contentDescription = Res.string.setting.inString(),
         ) {

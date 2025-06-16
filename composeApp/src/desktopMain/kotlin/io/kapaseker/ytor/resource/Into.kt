@@ -22,46 +22,7 @@ fun StringResource.inString(vararg formatArgs: Any):String {
 fun StringArrayResource.inStringArray():List<String> {
     return stringArrayResource(this)
 }
-//
-//fun @receiver:StringRes Int.getString():String {
-//    return Utils.getApp().resources.getString(this)
-//}
-//
-//fun @receiver:StringRes Int.getString(vararg formatArgs: Any):String {
-//    return Utils.getApp().resources.getString(this, *formatArgs)
-//}
-//
-//fun @receiver:StringRes Int.getStringArray():Array<String> {
-//    return Utils.getApp().resources.getStringArray(this)
-//}
-//
-//@Composable
-//@ReadOnlyComposable
-//fun @receiver:DimenRes Int.inDp(): Dp {
-//    return dimensionResource(id = this)
-//}
-//
-//@Composable
-//fun @receiver:DimenRes Int.inPx(): Float {
-//    return dimensionResource(id = this).toPx
-//}
-//
-//@Composable
-//fun @receiver:DimenRes Int.inSp(): TextUnit {
-//    return dimensionResource(id = this).toSp
-//}
-//
-//@Composable
-//@ReadOnlyComposable
-//fun Int.inColor(): Color {
-//    return colorResource(id = this)
-//}
-//
-//@Composable
-//fun @receiver:ColorRes Int.colorInBrush(): Brush {
-//    return SolidColor(colorResource(id = this))
-//}
-//
+
 @Composable
 fun  DrawableResource.inPainter(): Painter {
     return painterResource(this)

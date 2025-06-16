@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
 import io.kapaseker.ytor.LocalController
+import io.kapaseker.ytor.resource.IconButtonPadding
+import io.kapaseker.ytor.resource.IconButtonSize
 import io.kapaseker.ytor.resource.inPainter
 import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.util.R
@@ -29,10 +31,12 @@ fun AppFilledIconButton(
     onClick: () -> Unit,
 ) {
     FilledIconButton(
-        onClick = onClick, modifier = modifier.size(40.dp)
+        onClick = onClick, modifier = modifier.size(IconButtonSize)
     ) {
         Icon(
-            painter = icon.inPainter(), modifier = Modifier.padding(8.dp).fillMaxSize(), contentDescription = contentDescription
+            painter = icon.inPainter(),
+            modifier = Modifier.padding(IconButtonPadding).fillMaxSize(),
+            contentDescription = contentDescription
         )
     }
 }
@@ -45,10 +49,12 @@ fun AppIconButton(
     onClick: () -> Unit,
 ) {
     IconButton(
-        onClick = onClick, modifier = modifier.size(40.dp)
+        onClick = onClick, modifier = modifier.size(IconButtonSize)
     ) {
         Icon(
-            painter = icon.inPainter(), modifier = Modifier.padding(8.dp).fillMaxSize(), contentDescription = contentDescription
+            painter = icon.inPainter(),
+            modifier = Modifier.padding(IconButtonPadding).fillMaxSize(),
+            contentDescription = contentDescription
         )
     }
 }
@@ -57,7 +63,11 @@ fun AppIconButton(
 fun BackButton(modifier: Modifier = Modifier, onBack: (() -> Unit)? = null) {
     val currentBack by rememberUpdatedState(onBack)
     val controller = LocalController.current
-    AppIconButton(modifier, icon = Res.drawable.back, contentDescription = Res.string.back.inString()) {
+    AppIconButton(
+        modifier = modifier,
+        icon = Res.drawable.back,
+        contentDescription = Res.string.back.inString()
+    ) {
         currentBack?.invoke() ?: controller.navigateUp()
     }
 }
