@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 object HomeNav
 
 @Serializable
-object FriendsList
+object SettingNav

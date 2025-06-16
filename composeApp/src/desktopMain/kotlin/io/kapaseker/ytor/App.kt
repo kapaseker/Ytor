@@ -8,8 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.kapaseker.ytor.nav.HomeNav
+import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.nav.composablePage
 import io.kapaseker.ytor.page.home.HomePage
+import io.kapaseker.ytor.page.setting.SettingPage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalController = staticCompositionLocalOf<NavHostController> { error("null controller") }
@@ -28,6 +30,9 @@ fun App() {
         NavHost(navController = navController, startDestination = HomeNav) {
             composablePage<HomeNav> {
                 HomePage(entry = it)
+            }
+            composablePage<SettingNav> {
+                SettingPage(entry = it)
             }
         }
     }

@@ -1,46 +1,43 @@
 package io.kapaseker.ytor.page.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import io.kapaseker.ytor.LocalController
+import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.page.home.biz.HomeViewModel
-import io.kapaseker.ytor.resource.inPainter
+import io.kapaseker.ytor.resource.inString
+import io.kapaseker.ytor.widget.AppFilledIconButton
 import ytor.composeapp.generated.resources.Res
-import ytor.composeapp.generated.resources.compose_multiplatform
+import ytor.composeapp.generated.resources.app_name
+import ytor.composeapp.generated.resources.setting
 
 @Composable
 fun HomePage(
     entry: NavBackStackEntry,
     vm: HomeViewModel = viewModel { HomeViewModel() }
 ) {
-    var showContent by remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier
-            .safeContentPadding()
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Button(onClick = { showContent = !showContent }) {
-            Text("Click me!")
+
+    val controller = LocalController.current
+
+    Box(modifier = Modifier.safeContentPadding().fillMaxSize()) {
+
+        AppFilledIconButton(
+            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+            icon = Res.drawable.setting,
+            contentDescription = Res.string.setting.inString(),
+        ) {
+            controller.navigate(SettingNav)
         }
-        AnimatedVisibility(showContent) {
-            Column(
-                Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(painter = Res.drawable.compose_multiplatform.inPainter(), contentDescription = null)
-                Text(text = "Hello Compose")
-            }
-        }
+
+        Text(text = "Hello ${Res.string.app_name.inString()}", modifier = Modifier.align(Alignment.Center))
     }
 }
