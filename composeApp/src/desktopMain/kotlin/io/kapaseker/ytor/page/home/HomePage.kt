@@ -9,11 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
-import io.kapaseker.ytor.page.home.biz.HomeViewModel
 import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.widget.AppFilledIconButton
 import ytor.composeapp.generated.resources.Res
@@ -23,7 +21,6 @@ import ytor.composeapp.generated.resources.setting
 @Composable
 fun HomePage(
     entry: NavBackStackEntry,
-    vm: HomeViewModel = viewModel { HomeViewModel() }
 ) {
 
     val controller = LocalController.current
