@@ -17,6 +17,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import io.github.vinceglb.filekit.FileKit
@@ -34,6 +36,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.download
+import ytor.composeapp.generated.resources.download_destination_hint
+import ytor.composeapp.generated.resources.download_destination_label
+import ytor.composeapp.generated.resources.download_link_hint
+import ytor.composeapp.generated.resources.download_link_label
 import ytor.composeapp.generated.resources.save
 import ytor.composeapp.generated.resources.setting
 
@@ -80,21 +86,63 @@ fun HomePage(
 
                 OutlinedTextField(
                     modifier = Modifier.weight(1f),
-                    value = input, onValueChange = {
+                    value = input,
+                    singleLine = true,
+                    onValueChange = {
                         input = it
+                    },
+                    label = {
+                        Text(
+                            text = Res.string.download_link_label.inString(),
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            text = Res.string.download_link_hint.inString(),
+                        )
+                    }
+                )
+
+                AppRoundFilledIconButton(
+                    icon = Res.drawable.download
+                ) {
+                    vm.download(input, dir)
+                    input = ""
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(PaddingMedium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                OutlinedTextField(
+
+                    modifier = Modifier.weight(1f),
+                    value = dir,
+                    readOnly = true,
+                    singleLine = true,
+                    onValueChange = {
+
+                    },
+                    label = {
+                        Text(
+                            text = Res.string.download_destination_label.inString(),
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            text = Res.string.download_destination_hint.inString(),
+                        )
                     }
                 )
 
                 AppRoundFilledIconButton(icon = Res.drawable.save) {
                     chooseFileSaveDir()
                 }
-
-                AppRoundFilledIconButton(
-                    icon = Res.drawable.download
-                ) {
-                    vm.download(input, dir)
-                }
             }
+
         }
     }
 }

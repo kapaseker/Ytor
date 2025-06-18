@@ -3,4 +3,10 @@
 
     <string name="setting">settings</string>
     <string name="back">back</string>
+
+    <string name="download_link_label">Youtube Link</string>
+    <string name="download_link_hint">Input youtube url or share link</string>
+
+    <string name="download_destination_label">Destination</string>
+    <string name="download_destination_hint">Click right button to select download destination</string>
 </resources>
