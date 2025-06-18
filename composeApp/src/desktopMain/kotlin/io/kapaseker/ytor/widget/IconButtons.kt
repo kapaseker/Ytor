@@ -10,24 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.dp
 import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.resource.IconButtonPadding
 import io.kapaseker.ytor.resource.IconButtonSize
 import io.kapaseker.ytor.resource.inPainter
 import io.kapaseker.ytor.resource.inString
-import io.kapaseker.ytor.util.R
 import org.jetbrains.compose.resources.DrawableResource
 import ytor.composeapp.generated.resources.Res
-import ytor.composeapp.generated.resources.allDrawableResources
 import ytor.composeapp.generated.resources.back
 
 @Composable
-fun AppFilledIconButton(
-    modifier: Modifier,
+fun AppRoundFilledIconButton(
+    modifier: Modifier = Modifier,
     icon: DrawableResource,
-    contentDescription: String?,
+    contentDescription: String? = null,
     onClick: () -> Unit,
 ) {
     FilledIconButton(
