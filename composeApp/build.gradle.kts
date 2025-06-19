@@ -31,6 +31,9 @@ kotlin {
             implementation(libs.filekit.core)
             implementation(libs.filekit.dialogs)
             implementation(libs.filekit.dialogs.compose)
+
+            implementation(libs.kstore.common)
+            implementation(libs.serialization.json)
         }
 
         commonTest.dependencies {
@@ -40,6 +43,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.kstore.file)
         }
     }
 }
