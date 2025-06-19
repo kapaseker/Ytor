@@ -1,15 +1,23 @@
 package io.kapaseker.ytor.page.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -28,11 +37,15 @@ import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.page.home.biz.HomeViewModel
 import io.kapaseker.ytor.resource.PaddingMedium
 import io.kapaseker.ytor.resource.PagePadding
+import io.kapaseker.ytor.resource.inPainter
 import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.widget.AppRoundFilledIconButton
+import io.kapaseker.ytor.widget.AppToggleIconButton
+import io.kapaseker.ytor.widget.AppToggleIconButtonSmall
 import io.kapaseker.ytor.widget.Page
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.download
@@ -40,9 +53,11 @@ import ytor.composeapp.generated.resources.download_destination_hint
 import ytor.composeapp.generated.resources.download_destination_label
 import ytor.composeapp.generated.resources.download_link_hint
 import ytor.composeapp.generated.resources.download_link_label
+import ytor.composeapp.generated.resources.history
 import ytor.composeapp.generated.resources.save
 import ytor.composeapp.generated.resources.setting
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     entry: NavBackStackEntry,
@@ -50,8 +65,17 @@ fun HomePage(
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
 
+    val destinationHistory by vm.destinationHistory.collectAsState()
+
     val controller = LocalController.current
     var dir by remember { mutableStateOf("") }
+
+    var showDestinationHistory by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+
+    fun showDestinationHistory() {
+        showDestinationHistory = true
+    }
 
     fun chooseFileSaveDir() {
         scope.launch(Dispatchers.IO) {
@@ -117,32 +141,62 @@ fun HomePage(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                OutlinedTextField(
-
+                Box(
                     modifier = Modifier.weight(1f),
-                    value = dir,
-                    readOnly = true,
-                    singleLine = true,
-                    onValueChange = {
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = dir,
+                        readOnly = true,
+                        singleLine = true,
+                        onValueChange = {
 
-                    },
-                    label = {
-                        Text(
-                            text = Res.string.download_destination_label.inString(),
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = Res.string.download_destination_hint.inString(),
-                        )
+                        },
+
+                        label = {
+                            Text(
+                                text = Res.string.download_destination_label.inString(),
+                            )
+                        },
+
+                        placeholder = {
+                            Text(
+                                text = Res.string.download_destination_hint.inString(),
+                            )
+                        }
+                    )
+
+                    AppToggleIconButton(
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                            .padding(top = 8.dp, end = 4.dp),
+                        checked = showDestinationHistory,
+                        icon = Res.drawable.history,
+                        contentDescription = null,
+                    ) {
+                        showDestinationHistory()
                     }
-                )
+                }
+
 
                 AppRoundFilledIconButton(icon = Res.drawable.save) {
                     chooseFileSaveDir()
                 }
             }
 
+
+            if (showDestinationHistory) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showDestinationHistory = false
+                    },
+                    sheetState = sheetState
+                ) {
+                    // Sheet content
+                    destinationHistory.forEach {
+                        Text(it)
+                    }
+                }
+            }
         }
     }
 }
