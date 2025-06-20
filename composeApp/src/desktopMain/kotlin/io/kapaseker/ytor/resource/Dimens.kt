@@ -9,3 +9,6 @@ val SmallIconButtonSize = 32.dp
 val SmallIconButtonPadding = 8.dp
 val PagePadding = 12.dp
 val PaddingMedium = 8.dp
+
+val SingleLineListItemHeight = 56.dp
+val SingleLineListItemPaddingHorizontal = 16.dp

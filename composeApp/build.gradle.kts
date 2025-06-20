@@ -25,6 +25,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(libs.kotlinx.io.core)
+            implementation(libs.kotlinx.collection)
 
             implementation(libs.compose.navigation)
 
