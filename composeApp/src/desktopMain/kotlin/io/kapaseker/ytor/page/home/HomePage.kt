@@ -14,6 +14,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -73,6 +76,12 @@ fun HomePage(
     var showDestinationHistory by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
+    var input by remember { mutableStateOf("") }
+
+    val snackHostState = remember {
+        SnackbarHostState()
+    }
+
     fun showDestinationHistory() {
         showDestinationHistory = true
     }
@@ -81,6 +90,20 @@ fun HomePage(
         scope.launch(Dispatchers.IO) {
             val saveDir = FileKit.openDirectoryPicker()
             dir = saveDir?.file?.absolutePath.orEmpty()
+        }
+    }
+
+    fun startDownload() {
+        scope.launch {
+            if (input.isEmpty()) {
+
+            }else if (dir.isEmpty()) {
+
+            }else {
+                vm.download(input, dir)
+                input = ""
+                snackHostState.showSnackbar("good")
+            }
         }
     }
 
@@ -99,8 +122,6 @@ fun HomePage(
                     controller.navigate(SettingNav)
                 }
             }
-
-            var input by remember { mutableStateOf("") }
 
             Row(
                 modifier = Modifier.padding(top = PagePadding).fillMaxWidth(),
@@ -130,8 +151,7 @@ fun HomePage(
                 AppRoundFilledIconButton(
                     icon = Res.drawable.download
                 ) {
-                    vm.download(input, dir)
-                    input = ""
+                    startDownload()
                 }
             }
 
@@ -197,6 +217,13 @@ fun HomePage(
                     }
                 }
             }
+        }
+
+        SnackbarHost(
+            hostState = snackHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
+        ) {
+            Snackbar(snackbarData = it)
         }
     }
 }

@@ -22,6 +22,7 @@ import io.kapaseker.ytor.resource.SmallIconButtonPadding
 import io.kapaseker.ytor.resource.SmallIconButtonSize
 import io.kapaseker.ytor.resource.inPainter
 import io.kapaseker.ytor.resource.inString
+import jdk.jfr.Enabled
 import org.jetbrains.compose.resources.DrawableResource
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.back
@@ -31,10 +32,12 @@ fun AppRoundFilledIconButton(
     modifier: Modifier = Modifier,
     icon: DrawableResource,
     contentDescription: String? = null,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     FilledIconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.size(IconButtonSize).semantics {
             contentDescription?.let {
                 this.contentDescription = it
@@ -55,10 +58,12 @@ fun AppIconButton(
     modifier: Modifier = Modifier,
     icon: DrawableResource,
     contentDescription: String?,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.size(IconButtonSize).semantics {
             contentDescription?.let {
                 this.contentDescription = it
@@ -81,6 +86,7 @@ fun AppToggleIconButtonSmall(
     checked: Boolean,
     icon: DrawableResource,
     contentDescription: String?,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     IconToggleButton(
@@ -90,6 +96,7 @@ fun AppToggleIconButtonSmall(
             }
             this.role = Role.Checkbox
         },
+        enabled = enabled,
         checked = checked,
         onCheckedChange = onCheckedChange
     ) {
@@ -107,6 +114,7 @@ fun AppToggleIconButton(
     checked: Boolean,
     icon: DrawableResource,
     contentDescription: String?,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     IconToggleButton(
@@ -117,6 +125,7 @@ fun AppToggleIconButton(
             this.role = Role.Checkbox
         },
         checked = checked,
+        enabled = enabled,
         onCheckedChange = onCheckedChange
     ) {
         Icon(
