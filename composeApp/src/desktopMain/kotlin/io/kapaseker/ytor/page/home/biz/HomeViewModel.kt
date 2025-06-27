@@ -5,11 +5,16 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.kapaseker.ytor.storage.Store
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.immutableListOf
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
@@ -19,14 +24,15 @@ class HomeViewModel : ViewModel() {
 //        println(text)
     }
 
-    private val _destinationHistory = MutableStateFlow(mutableStateListOf<String>())
-    val destinationHistory: StateFlow<SnapshotStateList<String>> = _destinationHistory.asStateFlow()
+    private val _destinationHistory = MutableStateFlow<ImmutableList<String>>(persistentListOf())
+    val destinationHistory: StateFlow<ImmutableList<String>> = _destinationHistory.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             Store.destinationHistory.collectLatest { history ->
-                _destinationHistory.value.clear()
-                _destinationHistory.value.addAll(history.items.map { it.path })
+                _destinationHistory.update {
+                    history.items.map { it.path }.toImmutableList()
+                }
             }
         }
     }

@@ -7,9 +7,10 @@ kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-io = "0.7.0"
 navigation = "2.9.0-beta03"
-filekit="0.10.0-beta04"
+filekit = "0.10.0-beta04"
 kstore = "1.0.0"
 serialization-json = "1.8.1"
+kotlinx-collection = "0.4.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -28,10 +29,12 @@ filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "file
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
-kstore-common = { module = "io.github.xxfast:kstore", version.ref="kstore" }
-kstore-file = { module = "io.github.xxfast:kstore-file", version.ref="kstore" }
+kstore-common = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
+kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 
 serialization-json = { module = 'org.jetbrains.kotlinx:kotlinx-serialization-json', version.ref = "serialization-json" }
+
+kotlinx-collection = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collection" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
