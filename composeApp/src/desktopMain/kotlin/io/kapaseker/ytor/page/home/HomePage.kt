@@ -1,46 +1,15 @@
 package io.kapaseker.ytor.page.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import io.github.vinceglb.filekit.FileKit
@@ -48,29 +17,15 @@ import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
 import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.page.home.biz.HomeViewModel
-import io.kapaseker.ytor.resource.PaddingMedium
-import io.kapaseker.ytor.resource.PagePadding
-import io.kapaseker.ytor.resource.SingleLineListItemHeight
-import io.kapaseker.ytor.resource.SingleLineListItemPaddingHorizontal
-import io.kapaseker.ytor.resource.inPainter
-import io.kapaseker.ytor.resource.inString
+import io.kapaseker.ytor.resource.*
+import io.kapaseker.ytor.util.isValidHttpUrl
 import io.kapaseker.ytor.widget.AppRoundFilledIconButton
 import io.kapaseker.ytor.widget.AppToggleIconButton
-import io.kapaseker.ytor.widget.AppToggleIconButtonSmall
 import io.kapaseker.ytor.widget.Page
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ytor.composeapp.generated.resources.Res
-import ytor.composeapp.generated.resources.download
-import ytor.composeapp.generated.resources.download_destination_hint
-import ytor.composeapp.generated.resources.download_destination_label
-import ytor.composeapp.generated.resources.download_link_hint
-import ytor.composeapp.generated.resources.download_link_label
-import ytor.composeapp.generated.resources.history
-import ytor.composeapp.generated.resources.save
-import ytor.composeapp.generated.resources.setting
+import ytor.composeapp.generated.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +53,10 @@ fun HomePage(
         showDestinationHistory = true
     }
 
+    fun hideDestinationHistory() {
+        showDestinationHistory = false
+    }
+
     fun chooseFileSaveDir() {
         scope.launch(Dispatchers.IO) {
             val saveDir = FileKit.openDirectoryPicker()
@@ -105,16 +64,28 @@ fun HomePage(
         }
     }
 
+    fun chooseHistory(history: String) {
+        dir = history
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                hideDestinationHistory()
+            }
+        }
+    }
+
     fun startDownload() {
         scope.launch {
             if (input.isEmpty()) {
-
-            }else if (dir.isEmpty()) {
-
-            }else {
+                snackHostState.showSnackbar(Res.string.download_link_empty.getString())
+            } else if (dir.isEmpty()) {
+                snackHostState.showSnackbar(Res.string.download_destination_empty.getString())
+            } else if(!input.isValidHttpUrl()) {
+                snackHostState.showSnackbar(Res.string.download_link_not_url.getString())
+            } else {
                 vm.download(input, dir)
                 input = ""
-                snackHostState.showSnackbar("good")
             }
         }
     }
@@ -218,14 +189,13 @@ fun HomePage(
 
             if (showDestinationHistory) {
                 ModalBottomSheet(
-                    modifier = Modifier.requiredHeightIn(200.dp, 400.dp),
                     onDismissRequest = {
-                        showDestinationHistory = false
+                        hideDestinationHistory()
                     },
                     sheetState = sheetState,
                 ) {
 
-                    LazyColumn {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
                         itemsIndexed(destinationHistory, key = { a, b -> b }) { index, value ->
                             val showDivider by remember {
                                 derivedStateOf {
@@ -234,8 +204,8 @@ fun HomePage(
                             }
                             Box(
                                 modifier = Modifier.height(SingleLineListItemHeight).fillMaxWidth()
-                                    .clickable() {
-
+                                    .clickable {
+                                        chooseHistory(value)
                                     }) {
                                 Text(
                                     value,
@@ -254,7 +224,7 @@ fun HomePage(
 
         SnackbarHost(
             hostState = snackHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = PagePadding),
         ) {
             Snackbar(snackbarData = it)
         }

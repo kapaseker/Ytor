@@ -9,4 +9,8 @@
 
     <string name="download_destination_label">Destination</string>
     <string name="download_destination_hint">Click right button to select download destination</string>
+
+    <string name="download_link_empty">Download URL cannot be empty.</string>
+    <string name="download_link_not_url">Download URL must be an HTTP link.</string>
+    <string name="download_destination_empty">Save path cannot be empty.</string>
 </resources>

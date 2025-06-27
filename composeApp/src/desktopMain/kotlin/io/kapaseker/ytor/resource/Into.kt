@@ -13,9 +13,17 @@ fun StringResource.inString():String {
     return stringResource(this)
 }
 
+suspend fun StringResource.getString():String {
+    return getString(resource = this)
+}
+
 @Composable
 fun StringResource.inString(vararg formatArgs: Any):String {
     return stringResource(this, *formatArgs)
+}
+
+suspend fun StringResource.getString(vararg formatArgs: Any):String {
+    return getString(resource = this, *formatArgs)
 }
 
 @Composable

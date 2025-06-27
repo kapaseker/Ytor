@@ -26,6 +26,9 @@ object Store {
     val destinationHistory: Flow<DestinationHistory> = store.updates.filterNotNull()
 
     suspend fun addDestination(destination: String) {
+        if (destination.isBlank()) {
+            return
+        }
         store.update { history ->
             val newItem = Destination(destination, System.currentTimeMillis())
             val olds = history?.items?.toMutableList() ?: mutableListOf()
