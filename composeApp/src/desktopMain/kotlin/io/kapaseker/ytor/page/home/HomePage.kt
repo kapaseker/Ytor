@@ -18,7 +18,9 @@ import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.page.home.biz.HomeViewModel
 import io.kapaseker.ytor.resource.*
+import io.kapaseker.ytor.storage.DestinationHistory
 import io.kapaseker.ytor.util.isValidHttpUrl
+import io.kapaseker.ytor.widget.AppOutlinedIconButton
 import io.kapaseker.ytor.widget.AppRoundFilledIconButton
 import io.kapaseker.ytor.widget.AppToggleIconButton
 import io.kapaseker.ytor.widget.Page
@@ -73,6 +75,10 @@ fun HomePage(
                 hideDestinationHistory()
             }
         }
+    }
+
+    fun deleteHistory(history: String) {
+        vm.deleteHistory(history)
     }
 
     fun startDownload() {
@@ -206,12 +212,22 @@ fun HomePage(
                                 modifier = Modifier.height(SingleLineListItemHeight).fillMaxWidth()
                                     .clickable {
                                         chooseHistory(value)
-                                    }) {
+                                    }
+                            ) {
                                 Text(
-                                    value,
+                                    text = value,
                                     modifier = Modifier.align(Alignment.CenterStart)
-                                        .padding(horizontal = SingleLineListItemPaddingHorizontal)
+                                        .padding(start = SingleLineListItemPaddingHorizontal)
                                 )
+
+                                AppOutlinedIconButton(
+                                    modifier = Modifier.align(alignment = Alignment.CenterEnd).padding(end = SingleLineListItemPaddingHorizontal),
+                                    size = ButtonSize.XSmall,
+                                    icon = Res.drawable.close,
+                                ) {
+                                    deleteHistory(value)
+                                }
+
                                 if (showDivider) {
                                     Divider(modifier = Modifier.align(Alignment.BottomCenter))
                                 }

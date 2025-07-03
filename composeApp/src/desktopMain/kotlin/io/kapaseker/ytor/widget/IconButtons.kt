@@ -7,6 +7,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -15,7 +16,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import io.kapaseker.ytor.LocalController
+import io.kapaseker.ytor.resource.ButtonSize
 import io.kapaseker.ytor.resource.IconButtonPadding
 import io.kapaseker.ytor.resource.IconButtonSize
 import io.kapaseker.ytor.resource.SmallIconButtonPadding
@@ -31,6 +34,7 @@ import ytor.composeapp.generated.resources.back
 fun AppRoundFilledIconButton(
     modifier: Modifier = Modifier,
     icon: DrawableResource,
+    size: ButtonSize = ButtonSize.Small,
     contentDescription: String? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
@@ -38,7 +42,7 @@ fun AppRoundFilledIconButton(
     FilledIconButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.size(IconButtonSize).semantics {
+        modifier = modifier.size(size.size).semantics {
             contentDescription?.let {
                 this.contentDescription = it
             }
@@ -47,24 +51,25 @@ fun AppRoundFilledIconButton(
     ) {
         Icon(
             painter = icon.inPainter(),
-            modifier = Modifier.padding(IconButtonPadding).fillMaxSize(),
+            modifier = Modifier.padding(size.padding).fillMaxSize(),
             contentDescription = null,
         )
     }
 }
 
 @Composable
-fun AppIconButton(
+fun AppOutlinedIconButton(
     modifier: Modifier = Modifier,
     icon: DrawableResource,
-    contentDescription: String?,
+    size: ButtonSize = ButtonSize.Small,
+    contentDescription: String? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    IconButton(
+    OutlinedIconButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.size(IconButtonSize).semantics {
+        modifier = modifier.size(size.size).semantics {
             contentDescription?.let {
                 this.contentDescription = it
             }
@@ -73,7 +78,34 @@ fun AppIconButton(
     ) {
         Icon(
             painter = icon.inPainter(),
-            modifier = Modifier.padding(IconButtonPadding).fillMaxSize(),
+            modifier = Modifier.padding(size.padding).fillMaxSize(),
+            contentDescription = contentDescription
+        )
+    }
+}
+
+@Composable
+fun AppIconButton(
+    modifier: Modifier = Modifier,
+    icon: DrawableResource,
+    size: ButtonSize = ButtonSize.Small,
+    contentDescription: String? = null,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.size(size.size).semantics {
+            contentDescription?.let {
+                this.contentDescription = it
+            }
+            this.role = Role.Button
+        }
+    ) {
+        Icon(
+            painter = icon.inPainter(),
+            modifier = Modifier.padding(size.padding).fillMaxSize(),
             contentDescription = contentDescription
         )
     }
@@ -85,12 +117,13 @@ fun AppToggleIconButtonSmall(
     modifier: Modifier = Modifier,
     checked: Boolean,
     icon: DrawableResource,
-    contentDescription: String?,
+    size: ButtonSize = ButtonSize.Small,
+    contentDescription: String? = null,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     IconToggleButton(
-        modifier = modifier.size(SmallIconButtonSize).semantics {
+        modifier = modifier.size(size.size).semantics {
             contentDescription?.let {
                 this.contentDescription = it
             }
@@ -102,7 +135,7 @@ fun AppToggleIconButtonSmall(
     ) {
         Icon(
             painter = icon.inPainter(),
-            modifier = Modifier.padding(SmallIconButtonPadding).fillMaxSize(),
+            modifier = Modifier.padding(size.padding).fillMaxSize(),
             contentDescription = contentDescription
         )
     }
@@ -113,12 +146,13 @@ fun AppToggleIconButton(
     modifier: Modifier = Modifier,
     checked: Boolean,
     icon: DrawableResource,
-    contentDescription: String?,
+    size: ButtonSize = ButtonSize.Small,
+    contentDescription: String? = null,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     IconToggleButton(
-        modifier = modifier.size(IconButtonSize).semantics {
+        modifier = modifier.size(size.size).semantics {
             contentDescription?.let {
                 this.contentDescription = it
             }
@@ -130,7 +164,7 @@ fun AppToggleIconButton(
     ) {
         Icon(
             painter = icon.inPainter(),
-            modifier = Modifier.padding(IconButtonPadding).fillMaxSize(),
+            modifier = Modifier.padding(size.padding).fillMaxSize(),
             contentDescription = contentDescription
         )
     }

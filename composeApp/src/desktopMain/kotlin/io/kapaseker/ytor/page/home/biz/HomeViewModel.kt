@@ -37,6 +37,12 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun deleteHistory(item: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            Store.remove(item)
+        }
+    }
+
     fun download(input: String, dir: String) {
         println("down load input: $input")
 
