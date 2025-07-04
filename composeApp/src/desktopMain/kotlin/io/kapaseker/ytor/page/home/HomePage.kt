@@ -18,11 +18,10 @@ import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.page.home.biz.HomeViewModel
 import io.kapaseker.ytor.resource.*
-import io.kapaseker.ytor.storage.DestinationHistory
 import io.kapaseker.ytor.util.isValidHttpUrl
-import io.kapaseker.ytor.widget.AppOutlinedIconButton
-import io.kapaseker.ytor.widget.AppRoundFilledIconButton
+import io.kapaseker.ytor.widget.AppIconButton
 import io.kapaseker.ytor.widget.AppToggleIconButton
+import io.kapaseker.ytor.widget.IconButtonStyle
 import io.kapaseker.ytor.widget.Page
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -104,8 +103,9 @@ fun HomePage(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                AppRoundFilledIconButton(
+                AppIconButton(
                     icon = Res.drawable.setting,
+                    style = IconButtonStyle.Filled,
                     contentDescription = Res.string.setting.inString(),
                 ) {
                     controller.navigate(SettingNav)
@@ -137,8 +137,9 @@ fun HomePage(
                     }
                 )
 
-                AppRoundFilledIconButton(
-                    icon = Res.drawable.download
+                AppIconButton(
+                    icon = Res.drawable.download,
+                    style = IconButtonStyle.Filled,
                 ) {
                     startDownload()
                 }
@@ -187,7 +188,10 @@ fun HomePage(
                 }
 
 
-                AppRoundFilledIconButton(icon = Res.drawable.save) {
+                AppIconButton(
+                    icon = Res.drawable.save,
+                    style = IconButtonStyle.Filled,
+                ) {
                     chooseFileSaveDir()
                 }
             }
@@ -220,9 +224,10 @@ fun HomePage(
                                         .padding(start = SingleLineListItemPaddingHorizontal)
                                 )
 
-                                AppOutlinedIconButton(
+                                AppIconButton(
                                     modifier = Modifier.align(alignment = Alignment.CenterEnd).padding(end = SingleLineListItemPaddingHorizontal),
                                     size = ButtonSize.XSmall,
+                                    style = IconButtonStyle.Normal,
                                     icon = Res.drawable.close,
                                 ) {
                                     deleteHistory(value)

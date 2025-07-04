@@ -30,114 +30,71 @@ import org.jetbrains.compose.resources.DrawableResource
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.back
 
-@Composable
-fun AppRoundFilledIconButton(
-    modifier: Modifier = Modifier,
-    icon: DrawableResource,
-    size: ButtonSize = ButtonSize.Small,
-    contentDescription: String? = null,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) {
-    FilledIconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.size(size.size).semantics {
-            contentDescription?.let {
-                this.contentDescription = it
-            }
-            this.role = Role.Button
-        },
-    ) {
-        Icon(
-            painter = icon.inPainter(),
-            modifier = Modifier.padding(size.padding).fillMaxSize(),
-            contentDescription = null,
-        )
-    }
-}
-
-@Composable
-fun AppOutlinedIconButton(
-    modifier: Modifier = Modifier,
-    icon: DrawableResource,
-    size: ButtonSize = ButtonSize.Small,
-    contentDescription: String? = null,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) {
-    OutlinedIconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.size(size.size).semantics {
-            contentDescription?.let {
-                this.contentDescription = it
-            }
-            this.role = Role.Button
-        }
-    ) {
-        Icon(
-            painter = icon.inPainter(),
-            modifier = Modifier.padding(size.padding).fillMaxSize(),
-            contentDescription = contentDescription
-        )
-    }
+enum class IconButtonStyle {
+    Normal, Filled, Outlined
 }
 
 @Composable
 fun AppIconButton(
     modifier: Modifier = Modifier,
     icon: DrawableResource,
+    style :IconButtonStyle = IconButtonStyle.Normal,
     size: ButtonSize = ButtonSize.Small,
     contentDescription: String? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    IconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.size(size.size).semantics {
-            contentDescription?.let {
-                this.contentDescription = it
-            }
-            this.role = Role.Button
-        }
-    ) {
+
+    val iconContent: @Composable () -> Unit = {
         Icon(
             painter = icon.inPainter(),
             modifier = Modifier.padding(size.padding).fillMaxSize(),
-            contentDescription = contentDescription
+            contentDescription = null,
         )
     }
-}
 
+    when(style) {
+        IconButtonStyle.Normal -> {
+            IconButton(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = modifier.size(size.size).semantics {
+                    contentDescription?.let {
+                        this.contentDescription = it
+                    }
+                    this.role = Role.Button
+                },
+                content = iconContent,
+            )
+        }
 
-@Composable
-fun AppToggleIconButtonSmall(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    icon: DrawableResource,
-    size: ButtonSize = ButtonSize.Small,
-    contentDescription: String? = null,
-    enabled: Boolean = true,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    IconToggleButton(
-        modifier = modifier.size(size.size).semantics {
-            contentDescription?.let {
-                this.contentDescription = it
-            }
-            this.role = Role.Checkbox
-        },
-        enabled = enabled,
-        checked = checked,
-        onCheckedChange = onCheckedChange
-    ) {
-        Icon(
-            painter = icon.inPainter(),
-            modifier = Modifier.padding(size.padding).fillMaxSize(),
-            contentDescription = contentDescription
-        )
+        IconButtonStyle.Filled -> {
+            FilledIconButton(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = modifier.size(size.size).semantics {
+                    contentDescription?.let {
+                        this.contentDescription = it
+                    }
+                    this.role = Role.Button
+                },
+                content = iconContent,
+            )
+        }
+
+        IconButtonStyle.Outlined -> {
+            OutlinedIconButton(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = modifier.size(size.size).semantics {
+                    contentDescription?.let {
+                        this.contentDescription = it
+                    }
+                    this.role = Role.Button
+                },
+                content = iconContent,
+            )
+        }
     }
 }
 
