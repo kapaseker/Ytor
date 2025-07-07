@@ -228,7 +228,7 @@ fun HomePage(
                                     modifier = Modifier.align(alignment = Alignment.CenterEnd).padding(end = SingleLineListItemPaddingHorizontal),
                                     size = ButtonSize.XSmall,
                                     style = IconButtonStyle.Normal,
-                                    icon = Res.drawable.close,
+                                    icon = Res.drawable.delete,
                                 ) {
                                     deleteHistory(value)
                                 }
