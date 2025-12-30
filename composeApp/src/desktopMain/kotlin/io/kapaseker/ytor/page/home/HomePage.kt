@@ -37,6 +37,19 @@ fun HomePage(
 ) {
 
     val destinationHistory by vm.destinationHistory.collectAsState()
+    val downloadState by vm.downloadState.collectAsState()
+
+    // 调试：打印下载状态
+    LaunchedEffect(downloadState) {
+        println("=== Download State ===")
+        println("Status: ${downloadState.status}")
+        println("Progress: ${downloadState.progress}%")
+        println("Speed: ${downloadState.speed}")
+        println("ETA: ${downloadState.eta}")
+        println("Total Size: ${downloadState.totalSize}")
+        println("Error: ${downloadState.errorMessage}")
+        println("======================")
+    }
 
     val controller = LocalController.current
     var dir by remember { mutableStateOf("") }
