@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+This is a desktop application capable of downloading YouTube videos.
+Its design goal is to enable users to download video content from YouTube and perform basic editing operations.
+It supports Windows, Linux, and macOS.
+Built with Compose Multiplatform technology.

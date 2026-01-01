@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -33,7 +34,6 @@ kotlin {
             implementation(libs.filekit.dialogs)
             implementation(libs.filekit.dialogs.compose)
 
-            implementation(libs.kstore.common)
             implementation(libs.serialization.json)
         }
 
@@ -44,11 +44,24 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.kstore.file)
+            implementation(libs.sqldelight.driver)
+            implementation(libs.sqldelight.coroutines)
+            // 添加 SLF4J 实现以消除警告
+            implementation(libs.slf4j.simple)
         }
     }
 }
 
+
+sqldelight {
+    databases {
+        create("YtorDatabase") {
+            packageName.set("io.kapaseker.ytor.database")
+            // 使用同步方法，避免不必要的 runBlocking
+            generateAsync.set(false)
+        }
+    }
+}
 
 compose.desktop {
     application {

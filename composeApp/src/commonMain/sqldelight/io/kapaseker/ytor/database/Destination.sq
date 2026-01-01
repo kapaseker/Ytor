@@ -1,0 +1,27 @@
+CREATE TABLE destination (
+    path TEXT NOT NULL PRIMARY KEY,
+    add_time INTEGER NOT NULL
+);
+
+-- 获取所有目的地，按添加时间倒序
+selectAll:
+SELECT path, add_time
+FROM destination
+ORDER BY add_time DESC;
+
+-- 插入或替换目的地
+insertOrReplace:
+INSERT OR REPLACE INTO destination(path, add_time)
+VALUES (?, ?);
+
+-- 删除目的地
+deleteByPath:
+DELETE FROM destination
+WHERE path = ?;
+
+-- 获取目的地数量
+count:
+SELECT COUNT(*) AS cnt
+FROM destination;
+
+

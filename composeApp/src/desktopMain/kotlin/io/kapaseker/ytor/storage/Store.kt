@@ -1,49 +1,42 @@
 package io.kapaseker.ytor.storage
 
-import io.github.xxfast.kstore.KStore
-import io.github.xxfast.kstore.file.extensions.storeOf
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import io.kapaseker.ytor.database.Destination as DestinationRow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.io.files.Path
-import kotlinx.serialization.Serializable
-import java.io.File
+import kotlinx.coroutines.flow.map
 
-@Serializable
 data class DestinationHistory(val items: List<Destination>)
 
-@Serializable
 data class Destination(val path: String, val addTime: Long)
 
 object Store {
+    private val database = Database
+    
+    val destinationHistory: Flow<DestinationHistory> = database
+        .getAllDestinations()
+        .asFlow()
+        .mapToList(Dispatchers.IO)
+        .map { rows ->
+            val destinations = rows.map { row ->
+                Destination(
+                    path = row.path,
+                    addTime = row.add_time
+                )
+            }
+            DestinationHistory(destinations)
+        }
 
-    init {
-        File("./cache/").mkdirs()
-    }
-
-    private val store: KStore<DestinationHistory> =
-        storeOf(file = Path("./cache/destinations.json"), version = 0)
-
-    val destinationHistory: Flow<DestinationHistory> = store.updates.filterNotNull()
-
-    suspend fun addDestination(item: String) {
+    fun addDestination(item: String) {
         if (item.isBlank()) {
             return
         }
-        store.update { history ->
-            val newItem = Destination(item, System.currentTimeMillis())
-            val olds = history?.items?.toMutableList() ?: mutableListOf()
-            olds.removeIf { it.path == item }
-            olds.add(0, newItem)
-            history?.copy(items = olds) ?: DestinationHistory(olds)
-        }
+        // 使用 INSERT OR REPLACE 更新记录，如果已存在则更新 add_time，让最新的记录排在顶部
+        database.insertDestination(item, System.currentTimeMillis())
     }
 
-    suspend fun remove(item: String) {
-        store.update { history ->
-            val newItems = history?.items?.toMutableList()
-            newItems?.removeIf { it.path == item }
-            val updatedList = newItems.orEmpty()
-            history?.copy(items = updatedList) ?: DestinationHistory(updatedList)
-        }
+    fun remove(item: String) {
+        database.deleteDestination(item)
     }
 }

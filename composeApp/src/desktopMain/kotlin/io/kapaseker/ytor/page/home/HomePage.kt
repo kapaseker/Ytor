@@ -53,6 +53,15 @@ fun HomePage(
 
     val controller = LocalController.current
     var dir by remember { mutableStateOf("") }
+    var dirInitialized by remember { mutableStateOf(false) }
+
+    // Initialize dir with the latest destination history when available
+    LaunchedEffect(destinationHistory, dirInitialized) {
+        if (!dirInitialized && destinationHistory.isNotEmpty() && dir.isEmpty()) {
+            dir = destinationHistory.first()
+            dirInitialized = true
+        }
+    }
 
     var showDestinationHistory by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -99,7 +108,7 @@ fun HomePage(
                 snackHostState.showSnackbar(Res.string.download_link_empty.getString())
             } else if (dir.isEmpty()) {
                 snackHostState.showSnackbar(Res.string.download_destination_empty.getString())
-            } else if(!input.isValidHttpUrl()) {
+            } else if (!input.isValidHttpUrl()) {
                 snackHostState.showSnackbar(Res.string.download_link_not_url.getString())
             } else {
                 vm.download(input, dir)
@@ -238,7 +247,8 @@ fun HomePage(
                                 )
 
                                 AppIconButton(
-                                    modifier = Modifier.align(alignment = Alignment.CenterEnd).padding(end = SingleLineListItemPaddingHorizontal),
+                                    modifier = Modifier.align(alignment = Alignment.CenterEnd)
+                                        .padding(end = SingleLineListItemPaddingHorizontal),
                                     size = ButtonSize.XSmall,
                                     style = IconButtonStyle.Normal,
                                     icon = Res.drawable.delete,
