@@ -5,12 +5,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.kapaseker.ytor.nav.HomeNav
+import io.kapaseker.ytor.nav.IndexNav
+import io.kapaseker.ytor.nav.StartNav
 import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.nav.composablePage
-import io.kapaseker.ytor.page.home.HomePage
+import io.kapaseker.ytor.page.index.IndexPage
+import io.kapaseker.ytor.page.start.StartPage
 import io.kapaseker.ytor.page.setting.SettingPage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -27,9 +28,12 @@ fun App() {
     ) {
 
         // Creates the NavHost with the navigation graph consisting of supplied destinations
-        NavHost(navController = navController, startDestination = HomeNav) {
-            composablePage<HomeNav> {
-                HomePage(entry = it)
+        NavHost(navController = navController, startDestination = IndexNav) {
+            composablePage<IndexNav> {
+                IndexPage(entry = it)
+            }
+            composablePage<StartNav> {
+                StartPage(entry = it)
             }
             composablePage<SettingNav> {
                 SettingPage(entry = it)

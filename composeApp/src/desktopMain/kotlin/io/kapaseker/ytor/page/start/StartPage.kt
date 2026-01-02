@@ -1,4 +1,4 @@
-package io.kapaseker.ytor.page.home
+package io.kapaseker.ytor.page.start
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +16,7 @@ import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
 import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
-import io.kapaseker.ytor.page.home.biz.HomeViewModel
+import io.kapaseker.ytor.page.start.biz.HomeViewModel
 import io.kapaseker.ytor.resource.*
 import io.kapaseker.ytor.util.isValidHttpUrl
 import io.kapaseker.ytor.widget.AppIconButton
@@ -30,7 +30,7 @@ import ytor.composeapp.generated.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage(
+fun StartPage(
     entry: NavBackStackEntry,
     vm: HomeViewModel = viewModel { HomeViewModel() },
     scope: CoroutineScope = rememberCoroutineScope(),
@@ -120,19 +120,6 @@ fun HomePage(
     Page {
 
         Column {
-
-            Row {
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                AppIconButton(
-                    icon = Res.drawable.setting,
-                    style = IconButtonStyle.Filled,
-                    contentDescription = Res.string.setting.inString(),
-                ) {
-                    controller.navigate(SettingNav)
-                }
-            }
 
             Row(
                 modifier = Modifier.padding(top = PagePadding).fillMaxWidth(),

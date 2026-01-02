@@ -13,4 +13,7 @@
     <string name="download_link_empty">Download URL cannot be empty.</string>
     <string name="download_link_not_url">Download URL must be an HTTP link.</string>
     <string name="download_destination_empty">Save path cannot be empty.</string>
+
+    <string name="tab_downloading">Downloading</string>
+    <string name="tab_completed">Completed</string>
 </resources>

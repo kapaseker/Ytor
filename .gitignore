@@ -11,6 +11,7 @@ captures
 .externalNativeBuild
 .cxx
 build/
+cache*
 
 # Compiled class file
 *.class

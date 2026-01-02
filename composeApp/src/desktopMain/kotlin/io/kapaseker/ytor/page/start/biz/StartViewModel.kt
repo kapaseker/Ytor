@@ -1,8 +1,10 @@
-package io.kapaseker.ytor.page.home.biz
+package io.kapaseker.ytor.page.start.biz
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.kapaseker.ytor.storage.Store
+import io.kapaseker.ytor.storage.TaskStore
+import io.kapaseker.ytor.storage.TaskStatus
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -95,7 +97,34 @@ class HomeViewModel : ViewModel() {
 
             Store.addDestination(dir)
 
+            var taskId: Long = 0L
+
             runCatching {
+                // Step 1: 使用 --print 获取视频标题
+                var videoTitle: String? = null
+                runCatching {
+                    val titleProcess = Runtime.getRuntime().exec(
+                        arrayOf(
+                            "yt-dlp",
+                            "--print", "%(title)s",
+                            input
+                        )
+                    )
+                    videoTitle = titleProcess.inputStream.bufferedReader().readLine()?.takeIf { it.isNotBlank() }
+                    titleProcess.waitFor()
+                }.onFailure { e ->
+                    println("Failed to get video title: ${e.message}")
+                }
+
+                // Step 2: 创建任务记录
+                taskId = TaskStore.createTask(url = input, destination = dir)
+
+                // Step 3: 如果有标题，更新任务标题
+                videoTitle?.let { title ->
+                    TaskStore.updateTaskTitle(taskId, title)
+                }
+
+                // Step 4: 执行下载
                 val process = Runtime.getRuntime().exec(
                     arrayOf(
                         "yt-dlp",
@@ -110,7 +139,7 @@ class HomeViewModel : ViewModel() {
                 // 读取标准输出
                 process.inputStream.bufferedReader().forEachLine { line ->
                     println(line)
-                    parseYtDlpOutput(line)
+                    parseYtDlpOutput(line, taskId)
                 }
 
                 // 读取错误输出
@@ -128,28 +157,42 @@ class HomeViewModel : ViewModel() {
                             progress = 100f
                         )
                     }
+                    // 更新任务状态为已完成
+                    if (taskId > 0) {
+                        TaskStore.updateTaskStatus(taskId, TaskStatus.Completed)
+                    }
                     println("done")
                 } else {
+                    val errorMsg = "yt-dlp exited with code $exitCode"
                     _downloadState.update {
                         it.copy(
                             status = DownloadStatus.Error,
-                            errorMessage = "yt-dlp exited with code $exitCode"
+                            errorMessage = errorMsg
                         )
+                    }
+                    // 更新任务状态为失败
+                    if (taskId > 0) {
+                        TaskStore.updateTaskStatus(taskId, TaskStatus.Failed, errorMsg)
                     }
                 }
             }.onFailure { e ->
+                val errorMsg = e.message ?: "Unknown error"
                 _downloadState.update {
                     it.copy(
                         status = DownloadStatus.Error,
-                        errorMessage = e.message
+                        errorMessage = errorMsg
                     )
+                }
+                // 更新任务状态为失败
+                if (taskId > 0) {
+                    TaskStore.updateTaskStatus(taskId, TaskStatus.Failed, errorMsg)
                 }
                 e.printStackTrace()
             }
         }
     }
 
-    private fun parseYtDlpOutput(line: String) {
+    private fun parseYtDlpOutput(line: String, taskId: Long = 0L) {
         when {
             // 检查是否正在合并
             mergerRegex.containsMatchIn(line) -> {
@@ -171,6 +214,10 @@ class HomeViewModel : ViewModel() {
                         progress = 100f
                     )
                 }
+                // 更新任务状态为已完成
+                if (taskId > 0) {
+                    TaskStore.updateTaskStatus(taskId, TaskStatus.Completed)
+                }
             }
 
             // 检查下载完成
@@ -190,17 +237,17 @@ class HomeViewModel : ViewModel() {
 
             // 检查下载进度（带分片信息）
             fragProgressRegex.containsMatchIn(line) -> {
-                fragProgressRegex.find(line)?.let { updateProgressFromMatch(it) }
+                fragProgressRegex.find(line)?.let { updateProgressFromMatch(it, taskId) }
             }
 
             // 检查下载进度（普通）
             progressRegex.containsMatchIn(line) -> {
-                progressRegex.find(line)?.let { updateProgressFromMatch(it) }
+                progressRegex.find(line)?.let { updateProgressFromMatch(it, taskId) }
             }
         }
     }
 
-    private fun updateProgressFromMatch(match: MatchResult) {
+    private fun updateProgressFromMatch(match: MatchResult, taskId: Long = 0L) {
         val (percent, totalSize, speed, eta) = match.destructured
         val progress = percent.toFloatOrNull() ?: 0f
 
@@ -212,6 +259,11 @@ class HomeViewModel : ViewModel() {
                 speed = speed.trim(),
                 eta = eta.trim()
             )
+        }
+
+        // 更新任务进度
+        if (taskId > 0) {
+            TaskStore.updateTaskProgress(taskId, progress)
         }
     }
 

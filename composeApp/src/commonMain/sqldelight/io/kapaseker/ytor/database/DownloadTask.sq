@@ -1,0 +1,63 @@
+CREATE TABLE download_task (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    title TEXT,
+    destination TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_time INTEGER NOT NULL,
+    completed_time INTEGER,
+    error_message TEXT,
+    progress REAL NOT NULL DEFAULT 0
+);
+
+-- 插入新任务，返回ID（使用SQLite的last_insert_rowid()）
+insertTask:
+INSERT INTO download_task(url, title, destination, status, created_time, progress)
+VALUES (?, ?, ?, ?, ?, ?);
+
+-- 获取最后插入的任务ID（通过URL和创建时间匹配，因为created_time是精确到毫秒的）
+getLastInsertedTask:
+SELECT id, url, title, destination, status, created_time, completed_time, error_message, progress
+FROM download_task
+WHERE url = ? AND created_time = ?
+ORDER BY id DESC
+LIMIT 1;
+
+-- 更新任务状态
+updateTaskStatus:
+UPDATE download_task
+SET status = ?, completed_time = ?, error_message = ?
+WHERE id = ?;
+
+-- 更新任务标题
+updateTaskTitle:
+UPDATE download_task
+SET title = ?
+WHERE id = ?;
+
+-- 更新任务进度
+updateTaskProgress:
+UPDATE download_task
+SET progress = ?
+WHERE id = ?;
+
+-- 获取所有下载中的任务
+getDownloadingTasks:
+SELECT id, url, title, destination, status, created_time, completed_time, error_message, progress
+FROM download_task
+WHERE status = 'downloading'
+ORDER BY created_time DESC;
+
+-- 获取所有已完成的任务
+getCompletedTasks:
+SELECT id, url, title, destination, status, created_time, completed_time, error_message, progress
+FROM download_task
+WHERE status = 'completed'
+ORDER BY completed_time DESC;
+
+-- 根据ID获取任务
+getTaskById:
+SELECT id, url, title, destination, status, created_time, completed_time, error_message, progress
+FROM download_task
+WHERE id = ?;
+

@@ -22,12 +22,13 @@ object Database {
         if (!dbFile.exists() || dbFile.length() == 0L) {
             YtorDatabase.Schema.create(driver)
         } else {
-            // 数据库文件存在，尝试查询表是否存在
+            // 数据库文件存在，检查download_task表是否存在
             try {
-                // 尝试执行一个简单的查询来检查表是否存在
-                db.destinationQueries.count().executeAsOne()
+                // 尝试查询download_task表是否存在
+                db.downloadTaskQueries.getDownloadingTasks().executeAsList()
             } catch (e: Exception) {
-                // 表不存在或查询失败，创建 schema
+                // download_task表不存在，调用Schema.create创建所有表
+                // SQLDelight的Schema.create会使用CREATE TABLE IF NOT EXISTS，不会破坏现有表
                 YtorDatabase.Schema.create(driver)
             }
         }
@@ -35,6 +36,7 @@ object Database {
     }
     
     val destinationQueries = database.destinationQueries
+    val downloadTaskQueries = database.downloadTaskQueries
     
     fun getAllDestinations(): Query<DestinationRow> = destinationQueries.selectAll()
     
