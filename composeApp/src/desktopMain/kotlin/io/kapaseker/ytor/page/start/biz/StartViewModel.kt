@@ -38,7 +38,7 @@ enum class DownloadStatus {
     Error           // 错误
 }
 
-class HomeViewModel : ViewModel() {
+class StartViewModel : ViewModel() {
 
     private val _destinationHistory = MutableStateFlow<ImmutableList<String>>(persistentListOf())
     val destinationHistory: StateFlow<ImmutableList<String>> = _destinationHistory.asStateFlow()
@@ -106,6 +106,7 @@ class HomeViewModel : ViewModel() {
                     val titleProcess = Runtime.getRuntime().exec(
                         arrayOf(
                             "yt-dlp",
+                            "--cookies-from-browser", "firefox",  // 从浏览器获取 cookies
                             "--print", "%(title)s",
                             input
                         )
@@ -129,12 +130,30 @@ class HomeViewModel : ViewModel() {
                     arrayOf(
                         "yt-dlp",
                         "-P", saveOption,
-                        "-f", "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+                        "-f", "best[height<=1080][ext=mp4]/best[ext=mp4]/best",
+                        "--cookies-from-browser", "firefox",  // 从 Chrome 浏览器获取 cookies（也支持 firefox, edge, safari 等）
                         "--newline",  // 每行输出进度，便于解析
                         "--progress",
                         input
                     )
                 )
+
+                // 读取标准输出和错误输出（需要并行读取，避免阻塞）
+                val errorLines = mutableListOf<String>()
+                
+                // 启动错误输出读取线程
+                val errorReader = Thread {
+                    process.errorStream.bufferedReader().forEachLine { line ->
+                        errorLines.add(line)
+                        println("Error: $line")
+                        // 检查是否是关键错误
+                        if (line.contains("ERROR", ignoreCase = true) || 
+                            line.contains("Sign in to confirm", ignoreCase = true)) {
+                            parseErrorOutput(line, taskId)
+                        }
+                    }
+                }
+                errorReader.start()
 
                 // 读取标准输出
                 process.inputStream.bufferedReader().forEachLine { line ->
@@ -142,11 +161,8 @@ class HomeViewModel : ViewModel() {
                     parseYtDlpOutput(line, taskId)
                 }
 
-                // 读取错误输出
-                val errorOutput = process.errorStream.bufferedReader().readText()
-                if (errorOutput.isNotBlank()) {
-                    println("Error: $errorOutput")
-                }
+                // 等待错误输出读取完成
+                errorReader.join()
 
                 process.waitFor()
             }.onSuccess { exitCode ->
@@ -264,6 +280,40 @@ class HomeViewModel : ViewModel() {
         // 更新任务进度
         if (taskId > 0) {
             TaskStore.updateTaskProgress(taskId, progress)
+        }
+    }
+
+    /**
+     * 解析错误输出
+     */
+    private fun parseErrorOutput(line: String, taskId: Long = 0L) {
+        when {
+            line.contains("Sign in to confirm", ignoreCase = true) -> {
+                val errorMsg = "YouTube 需要验证身份。请确保已登录 Chrome 浏览器，或使用 --cookies 参数提供 cookies。"
+                _downloadState.update {
+                    it.copy(
+                        status = DownloadStatus.Error,
+                        errorMessage = errorMsg
+                    )
+                }
+                if (taskId > 0) {
+                    TaskStore.updateTaskStatus(taskId, TaskStatus.Failed, errorMsg)
+                }
+            }
+            line.contains("ERROR", ignoreCase = true) -> {
+                // 提取错误信息（去除 ERROR: 前缀）
+                val errorMsg = line.substringAfter("ERROR:").trim().takeIf { it.isNotBlank() } 
+                    ?: "下载失败，请检查网络连接或视频链接"
+                _downloadState.update {
+                    it.copy(
+                        status = DownloadStatus.Error,
+                        errorMessage = errorMsg
+                    )
+                }
+                if (taskId > 0) {
+                    TaskStore.updateTaskStatus(taskId, TaskStatus.Failed, errorMsg)
+                }
+            }
         }
     }
 

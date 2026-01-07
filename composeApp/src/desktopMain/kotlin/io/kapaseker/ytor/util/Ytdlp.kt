@@ -32,7 +32,7 @@ object Ytdlp {
 //                "-P",
 //                saveOption,
 //                "-f",
-//                "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+//                "best[height<=1080][ext=mp4]/best[ext=mp4]/best",
 //                input
 //            )
 //        )

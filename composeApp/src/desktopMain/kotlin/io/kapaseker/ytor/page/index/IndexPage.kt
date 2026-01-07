@@ -1,5 +1,6 @@
 package io.kapaseker.ytor.page.index
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +26,7 @@ import io.kapaseker.ytor.resource.PagePadding
 import io.kapaseker.ytor.resource.inPainter
 import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.storage.DownloadTask
+import io.kapaseker.ytor.util.openFileExplorer
 import io.kapaseker.ytor.widget.AppIconButton
 import io.kapaseker.ytor.widget.IconButtonStyle
 import io.kapaseker.ytor.widget.Page
@@ -221,7 +224,11 @@ private fun CompletedTaskItem(task: DownloadTask) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .clip(CardDefaults.shape)
+            .padding(vertical = 4.dp)
+            .clickable {
+                openFileExplorer(task.destination)
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
