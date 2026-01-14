@@ -3,6 +3,7 @@ package io.kapaseker.ytor.util
 import io.kapaseker.ytor.storage.Store
 import io.kapaseker.ytor.storage.TaskStore
 import io.kapaseker.ytor.storage.TaskStatus
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -67,12 +68,25 @@ object YtDownloader {
     private val alreadyDownloadedRegex = Regex("""\[download\].*has already been downloaded""")
 
     /**
+     * Converts video title to a valid folder name.
+     * - Removes illegal characters for file names
+     * - Replaces spaces with underscores
+     * - Adds leading underscore
+     */
+    private fun titleToFolderName(title: String): String {
+        // Remove illegal characters for file names (Windows: /\:*?"<>|)
+        val sanitized = title.replace(Regex("[/\\\\:*?\"<>|]"), "")
+        // Replace spaces with underscores and add leading underscore
+        return "_" + sanitized.replace(" ", "_")
+    }
+
+    /**
      * 开始下载任务
      */
     fun download(input: String, dir: String) {
         println("download input: $input")
 
-        val saveOption = dir.takeIf { it.isNotEmpty() } ?: "./"
+        val baseDir = dir.takeIf { it.isNotEmpty() } ?: "./"
 
         downloadScope.launch {
             // 重置状态
@@ -100,19 +114,30 @@ object YtDownloader {
                     println("Failed to get video title: ${e.message}")
                 }
 
-                // Step 2: 创建任务记录
-                taskId = TaskStore.createTask(url = input, destination = dir)
+                // Step 2: Generate folder name from title or use timestamp fallback
+                val folderName = videoTitle?.let { titleToFolderName(it) }
+                    ?: "_download_${System.currentTimeMillis()}"
 
-                // Step 3: 如果有标题，更新任务标题
+                // Step 3: Create the video-specific subfolder
+                val downloadDir = File(baseDir, folderName)
+                if (!downloadDir.exists()) {
+                    downloadDir.mkdirs()
+                }
+                val actualDownloadPath = downloadDir.absolutePath
+
+                // Step 4: 创建任务记录 with the actual download folder path
+                taskId = TaskStore.createTask(url = input, destination = actualDownloadPath)
+
+                // Step 5: 如果有标题，更新任务标题
                 videoTitle?.let { title ->
                     TaskStore.updateTaskTitle(taskId, title)
                 }
 
-                // Step 4: 执行下载
+                // Step 6: 执行下载 to the video-specific folder
                 val process = Runtime.getRuntime().exec(
                     arrayOf(
                         "yt-dlp",
-                        "-P", saveOption,
+                        "-P", actualDownloadPath,
                         "-f", "best[height<=1080][ext=mp4]/best[ext=mp4]/best",
                         "--cookies-from-browser", "firefox",  // 从浏览器获取 cookies
                         "--newline",  // 每行输出进度，便于解析
@@ -154,9 +179,10 @@ object YtDownloader {
                         status = DownloadStatus.Completed,
                         progress = 100f
                     )
-                    // 更新任务状态为已完成
+                    // 更新任务状态为已完成，并清空ETA
                     if (taskId > 0) {
                         TaskStore.updateTaskStatus(taskId, TaskStatus.Completed)
+                        TaskStore.updateTaskEta(taskId, null)
                     }
                     println("done")
                 } else {
@@ -195,6 +221,10 @@ object YtDownloader {
                     speed = "",
                     eta = "合并中..."
                 )
+                // 清空ETA，因为合并阶段不需要显示ETA
+                if (taskId > 0) {
+                    TaskStore.updateTaskEta(taskId, null)
+                }
             }
 
             // 检查是否已下载
@@ -203,9 +233,10 @@ object YtDownloader {
                     status = DownloadStatus.Completed,
                     progress = 100f
                 )
-                // 更新任务状态为已完成
+                // 更新任务状态为已完成，并清空ETA
                 if (taskId > 0) {
                     TaskStore.updateTaskStatus(taskId, TaskStatus.Completed)
+                    TaskStore.updateTaskEta(taskId, null)
                 }
             }
 
@@ -219,6 +250,10 @@ object YtDownloader {
                         speed = "",
                         eta = ""
                     )
+                    // 清空ETA，因为下载已完成
+                    if (taskId > 0) {
+                        TaskStore.updateTaskEta(taskId, null)
+                    }
                 }
             }
 
@@ -237,6 +272,12 @@ object YtDownloader {
     private fun updateProgressFromMatch(match: MatchResult, taskId: Long = 0L) {
         val (percent, totalSize, speed, eta) = match.destructured
         val progress = percent.toFloatOrNull() ?: 0f
+        val trimmedEta = eta.trim()
+
+        // 容错逻辑：如果 ETA 为 00:00，不更新进度和 ETA
+        if (trimmedEta == "00:00" || trimmedEta == "0:00") {
+            return
+        }
 
         if ((_downloadState.value?.progress ?: 0f) < progress) {
             _downloadState.update {
@@ -244,20 +285,21 @@ object YtDownloader {
                     progress = progress,
                     totalSize = totalSize.trim(),
                     speed = speed.trim(),
-                    eta = eta.trim()
+                    eta = trimmedEta
                 ) ?: DownloadState(
                     status = DownloadStatus.Downloading,
                     progress = progress,
                     totalSize = totalSize.trim(),
                     speed = speed.trim(),
-                    eta = eta.trim()
+                    eta = trimmedEta
                 )
             }
         }
 
-        // 更新任务进度
+        // 更新任务进度和ETA
         if (taskId > 0) {
             TaskStore.updateTaskProgress(taskId, progress)
+            TaskStore.updateTaskEta(taskId, if (trimmedEta.isNotEmpty() && trimmedEta.lowercase() != "unknown") trimmedEta else null)
         }
     }
 

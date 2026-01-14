@@ -15,6 +15,7 @@ import androidx.navigation.NavBackStackEntry
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
 import io.kapaseker.ytor.LocalController
+import io.kapaseker.ytor.nav.IndexNav
 import io.kapaseker.ytor.page.start.biz.StartViewModel
 import io.kapaseker.ytor.resource.*
 import io.kapaseker.ytor.util.isValidHttpUrl
@@ -112,6 +113,8 @@ fun StartPage(
             } else {
                 vm.download(input, dir)
                 input = ""
+                // Navigate to IndexPage after starting download
+                controller.navigate(IndexNav)
             }
         }
     }

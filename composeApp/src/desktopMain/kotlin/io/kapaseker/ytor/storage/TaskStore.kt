@@ -15,7 +15,8 @@ data class DownloadTask(
     val createdTime: Long,
     val completedTime: Long?,
     val errorMessage: String?,
-    val progress: Float
+    val progress: Float,
+    val eta: String?
 )
 
 enum class TaskStatus {
@@ -64,7 +65,8 @@ object TaskStore {
                     createdTime = row.created_time,
                     completedTime = row.completed_time,
                     errorMessage = row.error_message,
-                    progress = row.progress.toFloat()
+                    progress = row.progress.toFloat(),
+                    eta = row.eta
                 )
             }
         }
@@ -85,7 +87,8 @@ object TaskStore {
                     createdTime = row.created_time,
                     completedTime = row.completed_time,
                     errorMessage = row.error_message,
-                    progress = row.progress.toFloat()
+                    progress = row.progress.toFloat(),
+                    eta = row.eta
                 )
             }
         }
@@ -98,7 +101,8 @@ object TaskStore {
             destination = destination,
             status = TaskStatus.Downloading.dbValue,
             created_time = createdTime,
-            progress = 0.0
+            progress = 0.0,
+            eta = null
         )
         // 查询刚刚插入的任务以获取ID
         return try {
@@ -135,8 +139,33 @@ object TaskStore {
     }
 
     fun updateTaskProgress(id: Long, progress: Float) {
-        database.downloadTaskQueries.updateTaskProgress(
-            progress = progress.toDouble(),
+        // Only update progress if it's greater than or equal to the current progress
+        // to handle cases where ytdlp reports non-monotonic progress
+        val currentTask = try {
+            database.downloadTaskQueries.getTaskById(id).executeAsOneOrNull()
+        } catch (e: Exception) {
+            null
+        }
+        
+        val currentProgress = currentTask?.progress?.toFloat() ?: 0f
+        if (progress >= currentProgress) {
+            database.downloadTaskQueries.updateTaskProgress(
+                progress = progress.toDouble(),
+                id = id
+            )
+        }
+    }
+
+    fun updateTaskDestination(id: Long, destination: String) {
+        database.downloadTaskQueries.updateTaskDestination(
+            destination = destination,
+            id = id
+        )
+    }
+
+    fun updateTaskEta(id: Long, eta: String?) {
+        database.downloadTaskQueries.updateTaskEta(
+            eta = eta,
             id = id
         )
     }

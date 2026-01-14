@@ -8,8 +8,11 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +60,29 @@ fun IndexPage(
 
     val downloadingTasks by vm.downloadingTasks.collectAsState()
     val completedTasks by vm.completedTasks.collectAsState()
+
+    // Track previous task count to detect when tasks go from empty to non-empty
+    val previousTaskCount = remember { mutableIntStateOf(0) }
+    val hasCheckedInitialState = remember { mutableIntStateOf(0) }
+
+    // Auto-switch to Downloading tab when page is first entered with existing download tasks
+    LaunchedEffect(Unit) {
+        if (hasCheckedInitialState.intValue == 0) {
+            hasCheckedInitialState.intValue = 1
+            if (downloadingTasks.isNotEmpty() && pagerState.currentPage != 0) {
+                pagerState.animateScrollToPage(0)
+            }
+        }
+    }
+
+    // Auto-switch to Downloading tab when new download task is detected (from empty to non-empty)
+    LaunchedEffect(downloadingTasks.size) {
+        val currentCount = downloadingTasks.size
+        if (previousTaskCount.intValue == 0 && currentCount > 0 && pagerState.currentPage != 0) {
+            pagerState.animateScrollToPage(0)
+        }
+        previousTaskCount.intValue = currentCount
+    }
 
     Page {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -206,6 +232,13 @@ private fun DownloadingTaskItem(task: DownloadTask) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            task.eta?.takeIf { it.isNotBlank() }?.let { eta ->
+                Text(
+                    text = "ETA: $eta",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
                 text = task.destination,
                 style = MaterialTheme.typography.bodySmall,
