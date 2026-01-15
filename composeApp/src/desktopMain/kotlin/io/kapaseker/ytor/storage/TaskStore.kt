@@ -2,6 +2,7 @@ package io.kapaseker.ytor.storage
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import io.kapaseker.ytor.database.Download_task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,6 +21,7 @@ data class DownloadTask(
 )
 
 enum class TaskStatus {
+    Pending,
     Downloading,
     Completed,
     Failed,
@@ -27,6 +29,7 @@ enum class TaskStatus {
 
     val dbValue: String
         get() = when (this) {
+            Pending -> "pending"
             Downloading -> "downloading"
             Completed -> "completed"
             Failed -> "failed"
@@ -36,6 +39,7 @@ enum class TaskStatus {
     companion object {
         fun fromDbValue(value: String): TaskStatus {
             return when (value) {
+                "pending" -> Pending
                 "downloading" -> Downloading
                 "completed" -> Completed
                 "failed" -> Failed
@@ -49,49 +53,34 @@ enum class TaskStatus {
 object TaskStore {
     private val database = Database
 
+    private fun Download_task.toDownloadTask(): DownloadTask {
+        return DownloadTask(
+            id = id,
+            url = url,
+            title = title,
+            destination = destination,
+            status = TaskStatus.fromDbValue(status),
+            createdTime = created_time,
+            completedTime = completed_time,
+            errorMessage = error_message,
+            progress = progress.toFloat(),
+            eta = eta
+        )
+    }
+
     val downloadingTasks: Flow<List<DownloadTask>> = database
         .downloadTaskQueries
         .getDownloadingTasks()
         .asFlow()
         .mapToList(Dispatchers.IO)
-        .map { rows ->
-            rows.map { row ->
-                DownloadTask(
-                    id = row.id,
-                    url = row.url,
-                    title = row.title,
-                    destination = row.destination,
-                    status = TaskStatus.fromDbValue(row.status),
-                    createdTime = row.created_time,
-                    completedTime = row.completed_time,
-                    errorMessage = row.error_message,
-                    progress = row.progress.toFloat(),
-                    eta = row.eta
-                )
-            }
-        }
+        .map { rows -> rows.map { it.toDownloadTask() } }
 
     val completedTasks: Flow<List<DownloadTask>> = database
         .downloadTaskQueries
         .getCompletedTasks()
         .asFlow()
         .mapToList(Dispatchers.IO)
-        .map { rows ->
-            rows.map { row ->
-                DownloadTask(
-                    id = row.id,
-                    url = row.url,
-                    title = row.title,
-                    destination = row.destination,
-                    status = TaskStatus.fromDbValue(row.status),
-                    createdTime = row.created_time,
-                    completedTime = row.completed_time,
-                    errorMessage = row.error_message,
-                    progress = row.progress.toFloat(),
-                    eta = row.eta
-                )
-            }
-        }
+        .map { rows -> rows.map { it.toDownloadTask() } }
 
     fun createTask(url: String, destination: String): Long {
         val createdTime = System.currentTimeMillis()
@@ -104,6 +93,7 @@ object TaskStore {
             progress = 0.0,
             eta = null
         )
+        println("Created task with ID: $createdTime")
         // 查询刚刚插入的任务以获取ID
         return try {
             val task = database.downloadTaskQueries.getLastInsertedTask(

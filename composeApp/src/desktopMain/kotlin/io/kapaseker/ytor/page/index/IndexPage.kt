@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -25,9 +26,7 @@ import io.kapaseker.ytor.LocalController
 import io.kapaseker.ytor.nav.SettingNav
 import io.kapaseker.ytor.nav.StartNav
 import io.kapaseker.ytor.page.index.biz.IndexViewModel
-import io.kapaseker.ytor.resource.PagePadding
-import io.kapaseker.ytor.resource.inPainter
-import io.kapaseker.ytor.resource.inString
+import io.kapaseker.ytor.resource.*
 import io.kapaseker.ytor.storage.DownloadTask
 import io.kapaseker.ytor.util.openFileExplorer
 import io.kapaseker.ytor.widget.AppIconButton
@@ -147,7 +146,7 @@ fun IndexPage(
                 Icon(
                     painter = Res.drawable.icon_add.inPainter(),
                     contentDescription = "Add download task",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(FloatingActionButtonIconSize)
                 )
             }
         }
@@ -207,8 +206,8 @@ private fun DownloadingTaskItem(task: DownloadTask) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(vertical = CardVerticalPadding),
+        elevation = CardDefaults.cardElevation(defaultElevation = CardElevation)
     ) {
         Column(
             modifier = Modifier
@@ -221,24 +220,29 @@ private fun DownloadingTaskItem(task: DownloadTask) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(SpacingMedium))
             LinearProgressIndicator(
-                progress = task.progress / 100f,
+                progress = {
+                    task.progress / 100f
+                },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(SpacingSmall))
             Text(
                 text = "${task.progress.toInt()}%",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            task.eta?.takeIf { it.isNotBlank() }?.let { eta ->
-                Text(
-                    text = "ETA: $eta",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+
+            val etaString by derivedStateOf {
+                task.eta.orEmpty()
             }
+
+            Text(
+                text = "ETA: $etaString",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Text(
                 text = task.destination,
                 style = MaterialTheme.typography.bodySmall,
@@ -253,16 +257,16 @@ private fun DownloadingTaskItem(task: DownloadTask) {
 @Composable
 private fun CompletedTaskItem(task: DownloadTask) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(CardDefaults.shape)
-            .padding(vertical = 4.dp)
+            .padding(vertical = CardVerticalPadding)
             .clickable {
                 openFileExplorer(task.destination)
             },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = CardElevation)
     ) {
         Column(
             modifier = Modifier
@@ -275,7 +279,7 @@ private fun CompletedTaskItem(task: DownloadTask) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(SpacingMedium))
             Text(
                 text = task.destination,
                 style = MaterialTheme.typography.bodySmall,

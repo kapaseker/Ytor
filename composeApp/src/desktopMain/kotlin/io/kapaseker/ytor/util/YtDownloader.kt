@@ -94,16 +94,20 @@ object YtDownloader {
 
             Store.addDestination(dir)
 
-            var taskId: Long = 0L
+            // Step 1: Create task with Pending status before fetching title
+            var taskId = TaskStore.createTask(url = input, destination = baseDir)
+            TaskStore.updateTaskTitle(taskId, "Pending...")
+            TaskStore.updateTaskStatus(taskId, TaskStatus.Pending)
 
             runCatching {
-                // Step 1: 使用 --print 获取视频标题
+                // Step 2: Fetch video title using --print
                 var videoTitle: String? = null
+                println("get title")
                 runCatching {
                     val titleProcess = Runtime.getRuntime().exec(
                         arrayOf(
                             "yt-dlp",
-                            "--cookies-from-browser", "firefox",  // 从浏览器获取 cookies
+                            "--cookies-from-browser", "firefox",
                             "--print", "%(title)s",
                             input
                         )
@@ -114,26 +118,28 @@ object YtDownloader {
                     println("Failed to get video title: ${e.message}")
                 }
 
-                // Step 2: Generate folder name from title or use timestamp fallback
-                val folderName = videoTitle?.let { titleToFolderName(it) }
-                    ?: "_download_${System.currentTimeMillis()}"
+                println("get title done")
 
-                // Step 3: Create the video-specific subfolder
+                // Step 3: Generate folder name from title or use timestamp fallback
+                val folderName = videoTitle?.let { titleToFolderName(it) } ?: "_download_${System.currentTimeMillis()}"
+
+                // Step 4: Create the video-specific subfolder
                 val downloadDir = File(baseDir, folderName)
                 if (!downloadDir.exists()) {
                     downloadDir.mkdirs()
                 }
                 val actualDownloadPath = downloadDir.absolutePath
 
-                // Step 4: 创建任务记录 with the actual download folder path
-                taskId = TaskStore.createTask(url = input, destination = actualDownloadPath)
-
-                // Step 5: 如果有标题，更新任务标题
+                // Step 5: Update task destination and status to Downloading
+                TaskStore.updateTaskDestination(taskId, actualDownloadPath)
+                TaskStore.updateTaskStatus(taskId, TaskStatus.Downloading)
                 videoTitle?.let { title ->
                     TaskStore.updateTaskTitle(taskId, title)
+                } ?: run {
+                    TaskStore.updateTaskTitle(taskId, input)
                 }
 
-                // Step 6: 执行下载 to the video-specific folder
+                // Step 6: Execute download to the video-specific folder
                 val process = Runtime.getRuntime().exec(
                     arrayOf(
                         "yt-dlp",
@@ -275,7 +281,7 @@ object YtDownloader {
         val trimmedEta = eta.trim()
 
         // 容错逻辑：如果 ETA 为 00:00，不更新进度和 ETA
-        if (trimmedEta == "00:00" || trimmedEta == "0:00") {
+        if (trimmedEta == "00:00" || trimmedEta == "0:00" || trimmedEta.lowercase() == "unknown") {
             return
         }
 
@@ -299,7 +305,7 @@ object YtDownloader {
         // 更新任务进度和ETA
         if (taskId > 0) {
             TaskStore.updateTaskProgress(taskId, progress)
-            TaskStore.updateTaskEta(taskId, if (trimmedEta.isNotEmpty() && trimmedEta.lowercase() != "unknown") trimmedEta else null)
+            TaskStore.updateTaskEta(taskId, trimmedEta)
         }
     }
 

@@ -54,11 +54,11 @@ UPDATE download_task
 SET destination = ?
 WHERE id = ?;
 
--- 获取所有下载中的任务
+-- 获取所有下载中的任务（包括 Pending 和 Downloading 状态）
 getDownloadingTasks:
 SELECT id, url, title, destination, status, created_time, completed_time, error_message, progress, eta
 FROM download_task
-WHERE status = 'downloading'
+WHERE status = 'pending' OR status = 'downloading'
 ORDER BY created_time DESC;
 
 -- 获取所有已完成的任务

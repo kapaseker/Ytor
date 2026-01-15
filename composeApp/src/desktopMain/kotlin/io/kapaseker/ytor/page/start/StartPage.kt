@@ -189,7 +189,7 @@ fun StartPage(
 
                     AppToggleIconButton(
                         modifier = Modifier.align(Alignment.CenterEnd)
-                            .padding(top = 8.dp, end = 4.dp),
+                            .padding(top = IconButtonTopPadding, end = IconButtonEndPadding),
                         checked = showDestinationHistory,
                         icon = Res.drawable.history,
                         contentDescription = null,
