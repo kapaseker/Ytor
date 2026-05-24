@@ -3,6 +3,7 @@ package io.kapaseker.ytor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -13,7 +14,6 @@ import io.kapaseker.ytor.nav.composablePage
 import io.kapaseker.ytor.page.index.IndexPage
 import io.kapaseker.ytor.page.start.StartPage
 import io.kapaseker.ytor.page.setting.SettingPage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalController = staticCompositionLocalOf<NavHostController> { error("null controller") }
 

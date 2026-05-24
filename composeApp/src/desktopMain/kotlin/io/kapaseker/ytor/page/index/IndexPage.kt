@@ -7,19 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import io.kapaseker.ytor.LocalController
@@ -34,14 +26,9 @@ import io.kapaseker.ytor.widget.IconButtonStyle
 import io.kapaseker.ytor.widget.Page
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
-import ytor.composeapp.generated.resources.Res
-import ytor.composeapp.generated.resources.icon_add
-import ytor.composeapp.generated.resources.setting
-import ytor.composeapp.generated.resources.tab_completed
-import ytor.composeapp.generated.resources.tab_downloading
+import ytor.composeapp.generated.resources.*
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 enum class TaskTab(val titleRes: StringResource) {
     Downloading(Res.string.tab_downloading),
@@ -94,7 +81,7 @@ fun IndexPage(
                     horizontalArrangement = Arrangement.End
                 ) {
                     AppIconButton(
-                        icon = Res.drawable.setting,
+                        icon = Res.drawable.icon_setting,
                         style = IconButtonStyle.Filled,
                         contentDescription = Res.string.setting.inString(),
                     ) {

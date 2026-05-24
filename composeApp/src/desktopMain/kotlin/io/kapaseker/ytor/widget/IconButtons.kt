@@ -29,6 +29,7 @@ import jdk.jfr.Enabled
 import org.jetbrains.compose.resources.DrawableResource
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.back
+import ytor.composeapp.generated.resources.icon_back
 
 enum class IconButtonStyle {
     Normal, Filled, Outlined
@@ -133,7 +134,7 @@ fun BackButton(modifier: Modifier = Modifier, onBack: (() -> Unit)? = null) {
     val controller = LocalController.current
     AppIconButton(
         modifier = modifier,
-        icon = Res.drawable.back,
+        icon = Res.drawable.icon_back,
         contentDescription = Res.string.back.inString()
     ) {
         currentBack?.invoke() ?: controller.navigateUp()

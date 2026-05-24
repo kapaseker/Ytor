@@ -149,7 +149,7 @@ fun StartPage(
                 )
 
                 AppIconButton(
-                    icon = Res.drawable.download,
+                    icon = Res.drawable.icon_download,
                     style = IconButtonStyle.Filled,
                 ) {
                     startDownload()
@@ -191,7 +191,7 @@ fun StartPage(
                         modifier = Modifier.align(Alignment.CenterEnd)
                             .padding(top = IconButtonTopPadding, end = IconButtonEndPadding),
                         checked = showDestinationHistory,
-                        icon = Res.drawable.history,
+                        icon = Res.drawable.icon_history,
                         contentDescription = null,
                     ) {
                         showDestinationHistory()
@@ -200,7 +200,7 @@ fun StartPage(
 
 
                 AppIconButton(
-                    icon = Res.drawable.save,
+                    icon = Res.drawable.icon_save,
                     style = IconButtonStyle.Filled,
                 ) {
                     chooseFileSaveDir()
@@ -240,7 +240,7 @@ fun StartPage(
                                         .padding(end = SingleLineListItemPaddingHorizontal),
                                     size = ButtonSize.XSmall,
                                     style = IconButtonStyle.Normal,
-                                    icon = Res.drawable.delete,
+                                    icon = Res.drawable.icon_delete,
                                 ) {
                                     deleteHistory(value)
                                 }

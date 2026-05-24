@@ -10,13 +10,13 @@ import io.kapaseker.ytor.resource.inString
 import io.kapaseker.ytor.theme.AppTheme
 import ytor.composeapp.generated.resources.Res
 import ytor.composeapp.generated.resources.app_name
-import ytor.composeapp.generated.resources.ytor
+import ytor.composeapp.generated.resources.icon_ytor
 
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         undecorated = false,
-        icon = Res.drawable.ytor.inPainter(),
+        icon = Res.drawable.icon_ytor.inPainter(),
         title = Res.string.app_name.inString(),
     ) {
         AppTheme {
